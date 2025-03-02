@@ -25,6 +25,7 @@ public class JwtService {
     private long jwtExpiration;
 
     public String extractUsername(String token) {
+        System.out.println("Mengekstrak username dari token");
         return extractClaim(token, Claims::getSubject);
     }
 
@@ -34,10 +35,12 @@ public class JwtService {
     }
 
     public String generateToken(UserDetails userDetails) {
+        System.out.println("Membuat token untuk user: " + userDetails.getUsername());
         return generateToken(new HashMap<>(), userDetails);
     }
 
     public String generateToken(Map<String, Object> extraClaims, UserDetails userDetails) {
+        System.out.println("Membuat token dengan klaim tambahan untuk user: " + userDetails.getUsername());
         return buildToken(extraClaims, userDetails, jwtExpiration);
     }
 
@@ -50,6 +53,7 @@ public class JwtService {
             UserDetails userDetails,
             long expiration
     ) {
+        System.out.println("Membangun token untuk user: " + userDetails.getUsername());
         return Jwts
                 .builder()
                 .setClaims(extraClaims)
@@ -61,19 +65,23 @@ public class JwtService {
     }
 
     public boolean isTokenValid(String token, UserDetails userDetails) {
+        System.out.println("Memvalidasi token untuk user: " + userDetails.getUsername());
         final String username = extractUsername(token);
         return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {
+        System.out.println("Memeriksa apakah token sudah kedaluwarsa");
         return extractExpiration(token).before(new Date());
     }
 
     private Date extractExpiration(String token) {
+        System.out.println("Mengekstrak tanggal kedaluwarsa dari token");
         return extractClaim(token, Claims::getExpiration);
     }
 
     private Claims extractAllClaims(String token) {
+        System.out.println("Mengekstrak semua klaim dari token");
         return Jwts
                 .parserBuilder()
                 .setSigningKey(getSignInKey())
@@ -83,6 +91,7 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
+        System.out.println("Membuat kunci signing");
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }

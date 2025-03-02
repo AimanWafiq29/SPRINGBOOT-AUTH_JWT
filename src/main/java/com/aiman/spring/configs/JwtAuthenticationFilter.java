@@ -41,9 +41,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException, java.io.IOException {
+        System.out.println("Memproses filter autentikasi JWT");
         final String authHeader = request.getHeader("Authorization");
 
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            System.out.println("Tidak ditemukan token JWT dalam request");
             filterChain.doFilter(request, response);
             return;
         }
@@ -51,13 +53,16 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             final String jwt = authHeader.substring(7);
             final String userEmail = jwtService.extractUsername(jwt);
+            System.out.println("Berhasil mengekstrak email dari token: " + userEmail);
 
             Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
             if (userEmail != null && authentication == null) {
+                System.out.println("Memuat detail user untuk email: " + userEmail);
                 UserDetails userDetails = this.userDetailsService.loadUserByUsername(userEmail);
 
                 if (jwtService.isTokenValid(jwt, userDetails)) {
+                    System.out.println("Token valid untuk user: " + userEmail);
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -66,11 +71,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                     SecurityContextHolder.getContext().setAuthentication(authToken);
+                    System.out.println("Autentikasi diatur di SecurityContextHolder untuk user: " + userEmail);
                 }
             }
 
             filterChain.doFilter(request, response);
         } catch (Exception exception) {
+            System.out.println("Terjadi kesalahan dalam filter autentikasi JWT: " + exception.getMessage());
             handlerExceptionResolver.resolveException(request, response, null, exception);
         }
     }

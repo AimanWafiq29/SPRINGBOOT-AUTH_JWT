@@ -31,33 +31,42 @@ public class SecurityConfiguration {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        System.out.println("Mengonfigurasi SecurityFilterChain");
+
         http
-                .csrf(csrf -> csrf.disable()) // Nonaktifkan CSRF dengan cara baru
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/auth/**").permitAll() // Izinkan akses ke endpoint /auth/**
-                        .anyRequest().authenticated() // Semua request lainnya harus terautentikasi
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Gunakan sesi stateless
-                )
+                .csrf(csrf -> {
+                    System.out.println("Menonaktifkan CSRF");
+                    csrf.disable();
+                })
+                .authorizeHttpRequests(auth -> {
+                    System.out.println("Mengatur aturan otorisasi");
+                    auth.requestMatchers("/auth/**").permitAll(); // Izinkan akses ke endpoint /auth/**
+                    auth.anyRequest().authenticated(); // Semua request lainnya harus terautentikasi
+                })
+                .sessionManagement(session -> {
+                    System.out.println("Mengatur manajemen sesi menjadi STATELESS");
+                    session.sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+                })
                 .authenticationProvider(authenticationProvider) // Tambahkan authentication provider
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class); // Tambahkan JWT filter
 
+        System.out.println("Konfigurasi SecurityFilterChain selesai");
         return http.build();
     }
 
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
+        System.out.println("Mengonfigurasi CORS");
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.setAllowedOrigins(List.of("http://localhost:8005"));
-        configuration.setAllowedMethods(List.of("GET","POST"));
-        configuration.setAllowedHeaders(List.of("Authorization","Content-Type"));
+        configuration.setAllowedMethods(List.of("GET", "POST"));
+        configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", configuration);
 
-        source.registerCorsConfiguration("/**",configuration);
-
+        System.out.println("Konfigurasi CORS selesai");
         return source;
     }
 

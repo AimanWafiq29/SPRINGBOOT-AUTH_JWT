@@ -22,27 +22,35 @@ public class ApplicationConfiguration {
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> userRepository.findByEmail(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        System.out.println("Membuat bean UserDetailsService");
+        return username -> {
+            System.out.println("Mencari user dengan email: " + username);
+            return userRepository.findByEmail(username)
+                    .orElseThrow(() -> new UsernameNotFoundException("User tidak ditemukan"));
+        };
     }
 
     @Bean
     BCryptPasswordEncoder passwordEncoder() {
+        System.out.println("Membuat bean BCryptPasswordEncoder");
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        System.out.println("Membuat bean AuthenticationManager");
         return config.getAuthenticationManager();
     }
 
     @Bean
     AuthenticationProvider authenticationProvider() {
+        System.out.println("Membuat bean AuthenticationProvider");
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
 
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
 
+        System.out.println("Mengatur UserDetailsService dan PasswordEncoder di AuthenticationProvider");
         return authProvider;
     }
 
