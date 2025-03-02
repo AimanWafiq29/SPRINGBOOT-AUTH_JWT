@@ -41,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull HttpServletResponse response,
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException, java.io.IOException {
+
         System.out.println("Memproses filter autentikasi JWT");
         final String authHeader = request.getHeader("Authorization");
 
